@@ -115,3 +115,10 @@ namespace Tests
         }
     }
 }
+//Need some better tests because currently testing the DAL layer is not very useful,
+//because it is just testing the EF Core functionality.
+//The DAL layer should be tested with a mock database or an in-memory database
+//to ensure that the methods are working correctly without relying on the actual database.
+//Also, the tests should cover edge cases and error handling, such as trying to add a user
+//with a duplicate email, updating a non-existent user, or deleting a user that is referenced
+//by other entities.

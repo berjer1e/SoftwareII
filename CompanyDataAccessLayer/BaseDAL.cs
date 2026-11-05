@@ -1,10 +1,16 @@
-using CompanyDataAccessLayer.Entities;
-using Microsoft.EntityFrameworkCore;
+/*
+ * Файл: BaseDAL.cs
+ * Призначення: Абстрактний базовий клас доступу до даних на основі Entity Framework Core.
+ * Реалізує типові CRUD-операції, підтримує роботу як через рядок підключення SQL Server,
+ * так і через DbContextOptions (для модульного тестування в пам'яті), а також централізоване логування помилок.
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CompanyDataAccessLayer.Entities;
+using CompanyDataAccessLayer.Logging;
+using Microsoft.EntityFrameworkCore;
 using DTO = CompanyDataTransferObject;
 
 namespace CompanyDataAccessLayer
@@ -13,23 +19,58 @@ namespace CompanyDataAccessLayer
         where TEntity : class
         where TDTO : DTO.BaseDTO
     {
-        private readonly string _connectionString; // Connection string for the database
-        protected BaseDAL(string connectionString)
+        private readonly string? _connectionString;
+        private readonly DbContextOptions<SoftwrDbContext>? _options;
+        protected readonly IAppLogger Logger;
+
+        /*
+         * Ініціалізує екземпляр DAL із рядком підключення до MS SQL Server та необов'язковим логером.
+         */
+        protected BaseDAL(string connectionString, IAppLogger? logger = null)
         {
-            _connectionString = connectionString;
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            Logger = logger ?? FileAppLogger.Instance;
         }
 
-        protected SoftwrDbContext CreateContext() =>
-            new SoftwrDbContext(new DbContextOptionsBuilder<SoftwrDbContext>()
-                .UseSqlServer(_connectionString).Options); // Create a new instance of SoftwrDbContext with the provided connection string
+        /*
+         * Ініціалізує екземпляр DAL із готовими параметрами DbContextOptions (зокрема для InMemory-тестів) та логером.
+         */
+        protected BaseDAL(DbContextOptions<SoftwrDbContext> options, IAppLogger? logger = null)
+        {
+            _options = options ?? throw new ArgumentNullException(nameof(options));
+            Logger = logger ?? FileAppLogger.Instance;
+        }
 
-        // Abstract methods to convert between entity and DTO
+        /*
+         * Створює та повертає новий екземпляр контексту бази даних SoftwrDbContext для виконання поточного запиту.
+         */
+        protected SoftwrDbContext CreateContext()
+        {
+            if (_options != null)
+            {
+                return new SoftwrDbContext(_options);
+            }
+
+            return new SoftwrDbContext(new DbContextOptionsBuilder<SoftwrDbContext>()
+                .UseSqlServer(_connectionString!)
+                .Options);
+        }
+
+        /*
+         * Перетворює сутність бази даних Entity Framework у відповідний об'єкт передачі даних (DTO).
+         */
         protected abstract TDTO ToDto(TEntity entity);
+
+        /*
+         * Перетворює об'єкт передачі даних (DTO) у сутність Entity Framework для збереження в базі даних.
+         */
         protected abstract TEntity ToEntity(TDTO dto);
 
-
+        /*
+         * Додає новий об'єкт DTO до бази даних, попередньо генеруючи GUID за потреби, і перехоплює помилки збереження.
+         */
         public bool Add(TDTO item)
-        {   
+        {
             try
             {
                 if (item.Id == Guid.Empty) item.Id = Guid.NewGuid();
@@ -39,39 +80,51 @@ namespace CompanyDataAccessLayer
                 db.SaveChanges();
                 return true;
             }
-            catch (Exception ex)
+            catch (DbUpdateException ex)
             {
-                // Log the exception or handle it as needed
-                Console.WriteLine($"Error adding item: {ex.Message}");
-                if (ex.InnerException != null) Console.WriteLine(ex.InnerException.Message);
+                Logger.LogError(ex, $"Database constraint error while adding {typeof(TEntity).Name} (Id={item.Id})");
                 return false;
             }
-           
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, $"Unexpected error while adding {typeof(TEntity).Name} (Id={item.Id})");
+                return false;
+            }
         }
 
+        /*
+         * Шукає сутність за первинним ключем та видаляє її з бази даних. Повертає false, якщо сутність не знайдено або виникла помилка.
+         */
         public bool Delete(Guid id)
         {
-            try 
+            try
             {
                 using var db = CreateContext();
                 var entity = db.Set<TEntity>().Find(id);
                 if (entity == null)
                 {
-                    return false; // Item not found
+                    return false;
                 }
                 db.Remove(entity);
                 db.SaveChanges();
                 return true;
             }
+            catch (DbUpdateException ex)
+            {
+                Logger.LogError(ex, $"Database constraint error while deleting {typeof(TEntity).Name} (Id={id})");
+                return false;
+            }
             catch (Exception ex)
             {
-                // Log the exception or handle it as needed
-                Console.WriteLine($"Error deleting item: {ex.Message}");
+                Logger.LogError(ex, $"Unexpected error while deleting {typeof(TEntity).Name} (Id={id})");
                 return false;
             }
         }
 
-        public List<TDTO> GetAll()
+        /*
+         * Отримує всі записи таблиці з бази даних і перетворює їх у список об'єктів DTO.
+         */
+        public virtual List<TDTO> GetAll()
         {
             try
             {
@@ -81,40 +134,50 @@ namespace CompanyDataAccessLayer
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it as needed
-                Console.WriteLine($"Error retrieving items: {ex.Message}");
+                Logger.LogError(ex, $"Error retrieving all {typeof(TEntity).Name} records");
                 return new List<TDTO>();
             }
         }
 
-        public TDTO? GetById(Guid id)
+        /*
+         * Отримує один запис за його унікальним ідентифікатором і конвертує його в DTO.
+         */
+        public virtual TDTO? GetById(Guid id)
         {
-            try { 
+            try
+            {
                 using var db = CreateContext();
                 var entity = db.Set<TEntity>().Find(id);
                 return entity != null ? ToDto(entity) : null;
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it as needed
-                Console.WriteLine($"Error retrieving item by ID: {ex.Message}");
+                Logger.LogError(ex, $"Error retrieving {typeof(TEntity).Name} by ID ({id})");
                 return null;
-            }  
             }
+        }
 
+        /*
+         * Оновлює дані існуючого запису в базі даних на основі переданого об'єкта DTO.
+         */
         public bool Update(TDTO item)
         {
-            try { 
+            try
+            {
                 using var db = CreateContext();
                 var entity = ToEntity(item);
                 db.Update(entity);
                 db.SaveChanges();
                 return true;
             }
+            catch (DbUpdateException ex)
+            {
+                Logger.LogError(ex, $"Database constraint error while updating {typeof(TEntity).Name} (Id={item.Id})");
+                return false;
+            }
             catch (Exception ex)
             {
-                // Log the exception or handle it as needed
-                Console.WriteLine($"Error updating item: {ex.Message}");
+                Logger.LogError(ex, $"Unexpected error while updating {typeof(TEntity).Name} (Id={item.Id})");
                 return false;
             }
         }

@@ -1,4 +1,9 @@
-﻿using System;
+/*
+ * Файл: ProductType.cs
+ * Призначення: Сутність бази даних Entity Framework Core для таблиці ProductType (категорії товарів).
+ */
+
+using System;
 using System.Collections.Generic;
 
 namespace CompanyDataAccessLayer.Entities;

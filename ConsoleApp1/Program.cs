@@ -1,3 +1,9 @@
+/*
+ * Файл: Program.cs
+ * Призначення: Консольний інтерфейс першої лабораторної роботи для демонстрації базових операцій
+ * перегляду, створення та деактивації/видалення аукціонів і товарів через рівень DAL.
+ */
+
 using System;
 using System.Linq;
 using CompanyDataAccessLayer.DAL;
@@ -7,12 +13,15 @@ namespace CompanyUserInterface
 {
     class Program
     {
+        /*
+         * Точка входу консольної програми: ініціалізує класи DAL і запускає інтерактивне меню користувача.
+         */
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            
+
             string connectionString = "Server=localhost;Database=softwrDB;Integrated Security=True;TrustServerCertificate=True;";
-            
+
             var auctionDal = new AuctionDAL(connectionString);
             var productDal = new ProductDAL(connectionString);
             var userDal = new UserDAL(connectionString);
@@ -23,7 +32,7 @@ namespace CompanyUserInterface
             while (!exit)
             {
                 Console.Clear();
-                
+
                 Console.WriteLine("Auction Control System");
                 Console.WriteLine("======================");
                 Console.WriteLine($"Hello, {currentManager.Name}!\n");
@@ -61,10 +70,13 @@ namespace CompanyUserInterface
             }
         }
 
+        /*
+         * Виводить у консоль перелік усіх наявних аукціонів разом із назвою товару, стартовою ціною та датою завершення.
+         */
         static void ShowAuctions(AuctionDAL auctionDal, ProductDAL productDal)
         {
             Console.Clear();
-            Console.WriteLine("--- 📋 LIST OF ALL AUCTIONS ---\n");
+            Console.WriteLine("--- LIST OF ALL AUCTIONS ---\n");
             var auctions = auctionDal.GetAll();
             if (auctions.Count == 0)
             {
@@ -84,10 +96,13 @@ namespace CompanyUserInterface
             Console.ReadKey();
         }
 
+        /*
+         * Виводить у консоль повний список товарів із зазначенням їхньої базової ціни та кількості на складі.
+         */
         static void ShowProducts(ProductDAL productDal)
         {
             Console.Clear();
-            Console.WriteLine("--- 📦 LIST OF ALL PRODUCTS ---\n");
+            Console.WriteLine("--- LIST OF ALL PRODUCTS ---\n");
             var products = productDal.GetAll();
             foreach (var p in products)
             {
@@ -97,22 +112,25 @@ namespace CompanyUserInterface
             Console.ReadKey();
         }
 
+        /*
+         * Зчитує параметри нового лота з консолі та створює новий запис аукціону в базі даних.
+         */
         static void CreateAuction(AuctionDAL auctionDal, ProductDAL productDal, UserDTO manager)
         {
             Console.Clear();
-            Console.WriteLine("--- ➕ CREATING NEW AUCTION ---\n");
-            
+            Console.WriteLine("--- CREATING NEW AUCTION ---\n");
+
             var products = productDal.GetAll();
             for (int i = 0; i < products.Count; i++)
             {
                 Console.WriteLine($"{i + 1}. {products[i].Name} (Base Price: {products[i].Price}$)");
             }
-            
+
             Console.Write("\nEnter the number of the product to sell: ");
             if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= products.Count)
             {
                 var selectedProduct = products[index - 1];
-                
+
                 Console.Write("Enter the starting price (e.g. 500): ");
                 if (decimal.TryParse(Console.ReadLine(), out decimal startPrice))
                 {
@@ -127,6 +145,9 @@ namespace CompanyUserInterface
                             EndDate = DateTime.Now.AddDays(days),
                             StartPrice = startPrice,
                             EndPrice = 0,
+                            MinBid = 0.01m,
+                            BuyoutPrice = (startPrice + 10m) * 2m,
+                            IsVerified = true,
                             IsActive = true
                         };
 
@@ -136,28 +157,31 @@ namespace CompanyUserInterface
                         }
                         else
                         {
-                            Console.WriteLine("\nSomething went wrong while saving to the database.\nWe don't know WHAT.");
+                            Console.WriteLine("\nSomething went wrong while saving to the database.");
                         }
                     }
                 }
             }
             else
             {
-                Console.WriteLine("\nNo such kind of toy.");
+                Console.WriteLine("\nInvalid product selection.");
             }
 
             Console.WriteLine("\nPress any key to return...");
             Console.ReadKey();
         }
 
+        /*
+         * Дозволяє вибрати аукціон зі списку та видалити його за номером у списку.
+         */
         static void DeleteAuction(AuctionDAL auctionDal)
         {
             Console.Clear();
-            Console.WriteLine("--- ❌ DELETING AN AUCTION ---\n");
+            Console.WriteLine("--- DELETING AN AUCTION ---\n");
             var auctions = auctionDal.GetAll();
             for (int i = 0; i < auctions.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. ID: {auctions[i].Id.ToString().Substring(0,8)} | Status: {(auctions[i].IsActive ? "Active" : "Closed")}");
+                Console.WriteLine($"{i + 1}. ID: {auctions[i].Id.ToString().Substring(0, 8)} | Status: {(auctions[i].IsActive ? "Active" : "Closed")}");
             }
 
             Console.Write("\nEnter the number of the auction to delete: ");
@@ -166,11 +190,11 @@ namespace CompanyUserInterface
                 var selected = auctions[index - 1];
                 if (auctionDal.Delete(selected.Id))
                 {
-                    Console.WriteLine("\nYou should never clear this type of information from the DB!\nBut you still did it.");
+                    Console.WriteLine("\nAuction removed from database.");
                 }
                 else
                 {
-                    Console.WriteLine("\nEven the DB didn't approve this action.");
+                    Console.WriteLine("\nCould not remove auction.");
                 }
             }
 

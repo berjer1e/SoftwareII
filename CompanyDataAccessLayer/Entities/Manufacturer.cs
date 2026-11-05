@@ -1,4 +1,9 @@
-﻿using System;
+/*
+ * Файл: Manufacturer.cs
+ * Призначення: Сутність бази даних Entity Framework Core для таблиці Manufacturers (виробники товарів).
+ */
+
+using System;
 using System.Collections.Generic;
 
 namespace CompanyDataAccessLayer.Entities;

@@ -1,16 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+/*
+ * Файл: ProductTypeDTO.cs
+ * Призначення: Об'єкт передачі даних типу (категорії) товару для класифікації лотів аукціону.
+ */
 
 namespace CompanyDataTransferObject
 {
-    public class ProductTypeDTO: BaseDTO
+    public class ProductTypeDTO : BaseDTO
     {
-
-
         public string Name { get; set; } = string.Empty;
-
     }
 }

@@ -1,0 +1,253 @@
+<UserControl x:Class="CompanyWPFInterface.Views.TraderTerminalView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource CrtBlackBrush}">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="{StaticResource CrtPanelBrush}"
+                BorderBrush="{StaticResource PhosphorGreenBrush}"
+                BorderThickness="1"
+                Padding="10,8"
+                Margin="0,0,0,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="260" />
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                    <TextBlock Text="ПОШУК АКТИВНОГО ЛОТА:" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                    <TextBlock Text="СОРТУВАННЯ:" Style="{StaticResource FieldLabelStyle}" />
+                    <ComboBox ItemsSource="{Binding SortFieldOptions}"
+                              SelectedItem="{Binding SortBy}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" VerticalAlignment="Bottom" Orientation="Horizontal">
+                    <CheckBox Content="ЗА ЗРОСТАННЯМ"
+                              IsChecked="{Binding SortAscending}"
+                              Margin="4,0,10,4" />
+                    <Button Content="[ ПОШУК ]"
+                            Command="{Binding ApplyFilterCommand}"
+                            Margin="0,0,6,0" />
+                    <Button Content="[ ОНОВИТИ ТОРГИ ]"
+                            Command="{Binding RefreshCommand}"
+                            Style="{StaticResource GreenTerminalButtonStyle}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="4" VerticalAlignment="Bottom" Orientation="Horizontal">
+                    <Button Content="[ ВИХІД / LOGOUT ]"
+                            Command="{Binding LogoutCommand}"
+                            Style="{StaticResource DangerTerminalButtonStyle}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1.15*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Background="{StaticResource CrtPanelBrush}"
+                    BorderBrush="{StaticResource CrtBorderBrush}"
+                    BorderThickness="1"
+                    Padding="8"
+                    Margin="0,0,8,0">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top"
+                               Text="АКТИВНІ ТОРГИ НА БІРЖІ [LIVE VERIFIED AUCTIONS ONLY]"
+                               Style="{StaticResource SectionHeaderStyle}" />
+                    <DataGrid ItemsSource="{Binding ActiveAuctions}"
+                              SelectedItem="{Binding SelectedAuction}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header=" ТОВАР " Binding="{Binding ProductName}" Width="*" />
+                            <DataGridTextColumn Header=" КАТЕГОРІЯ " Binding="{Binding ProductTypeName}" Width="105" />
+                            <DataGridTextColumn Header=" ВИРОБНИК " Binding="{Binding ManufacturerName}" Width="105" />
+                            <DataGridTextColumn Header=" СТАРТ ($) " Binding="{Binding StartPrice, StringFormat=F2}" Width="85" />
+                            <DataGridTextColumn Header=" ПОТОЧНА ($) " Binding="{Binding EndPrice, StringFormat=F2}" Width="95" />
+                            <DataGridTextColumn Header=" НАСТ. СТАВКА ($) " Binding="{Binding MinNextBid, StringFormat=F2}" Width="115" />
+                            <DataGridTextColumn Header=" ВИКУП ($) " Binding="{Binding BuyoutPrice, StringFormat=F2}" Width="95" />
+                            <DataGridTextColumn Header=" ЗАВЕРШЕННЯ " Binding="{Binding EndDate, StringFormat=dd.MM.yyyy HH:mm}" Width="115" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </Border>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Background="{StaticResource CrtPanelBrush}"
+                        BorderBrush="{StaticResource PhosphorGreenBrush}"
+                        BorderThickness="1"
+                        Padding="10"
+                        Margin="0,0,0,8">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top"
+                                   Text="ТОРГОВИЙ ОРДЕР: ПОДАТИ СТАВКУ АБО ВИКУПИТИ ЛОТ"
+                                   Style="{StaticResource SectionHeaderStyle}" />
+
+                        <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                            <TextBlock Text="ВАША СУМА СТАВКИ ($):" Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding BidAmountInput, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                                     Margin="0,0,0,8" />
+
+                            <UniformGrid Columns="2">
+                                <Button Content="[ ПОДАТИ СТАВКУ / PLACE BID ]"
+                                        Command="{Binding PlaceBidCommand}"
+                                        Style="{StaticResource GreenTerminalButtonStyle}"
+                                        Margin="0,0,4,0" />
+                                <Button Content="[ МИТТЄВИЙ ВИКУП / BUYOUT ]"
+                                        Command="{Binding BuyoutCommand}"
+                                        Margin="4,0,0,0" />
+                            </UniformGrid>
+                        </StackPanel>
+
+                        <DataGrid ItemsSource="{Binding SelectedAuctionBids}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header=" УЧАСНИК " Binding="{Binding BidderName}" Width="*" />
+                                <DataGridTextColumn Header=" СТАВКА ($) " Binding="{Binding Price, StringFormat=F2}" Width="90" />
+                                <DataGridTextColumn Header=" ВИКУП " Binding="{Binding IsBuyout}" Width="60" />
+                                <DataGridTextColumn Header=" ЧАС " Binding="{Binding TimeStamp, StringFormat=dd.MM HH:mm:ss}" Width="105" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </Border>
+
+                <Border Grid.Row="1"
+                        Background="{StaticResource CrtPanelBrush}"
+                        BorderBrush="{StaticResource CrtBorderBrush}"
+                        BorderThickness="1"
+                        Padding="10">
+                    <StackPanel>
+                        <TextBlock Text="ЗАПРОПОНУВАТИ ВЛАСНИЙ ЛОТ НА ВЕРИФІКАЦІЮ МЕНЕДЖЕРУ"
+                                   Style="{StaticResource SectionHeaderStyle}" />
+
+                        <TextBlock Text="НАЗВА ВАШОГО ТОВАРУ:" Style="{StaticResource FieldLabelStyle}" />
+                        <TextBox Text="{Binding ProposalProductName, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+
+                        <UniformGrid Columns="2">
+                            <StackPanel Margin="0,0,4,0">
+                                <TextBlock Text="ВИРОБНИК:" Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox ItemsSource="{Binding Manufacturers}"
+                                          SelectedItem="{Binding SelectedManufacturer}"
+                                          DisplayMemberPath="Name" />
+                            </StackPanel>
+                            <StackPanel Margin="4,0,0,0">
+                                <TextBlock Text="КАТЕГОРІЯ:" Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox ItemsSource="{Binding ProductTypes}"
+                                          SelectedItem="{Binding SelectedProductType}"
+                                          DisplayMemberPath="Name" />
+                            </StackPanel>
+                        </UniformGrid>
+
+                        <Border BorderBrush="{StaticResource CrtBorderBrush}"
+                                BorderThickness="1"
+                                Background="#0B0B0B"
+                                Padding="6"
+                                Margin="0,4,0,2">
+                            <StackPanel>
+                                <TextBlock Text="ШВИДКЕ ДОДАВАННЯ ВИРОБНИКА АБО КАТЕГОРІЇ:"
+                                           Foreground="{StaticResource AmberBrush}"
+                                           FontSize="10"
+                                           FontWeight="Bold"
+                                           Margin="0,0,0,4" />
+                                <Grid Margin="0,0,0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.2*" />
+                                        <ColumnDefinition Width="0.8*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                             ToolTip="Назва нового виробника"
+                                             Text="{Binding NewManufacturerNameInput, UpdateSourceTrigger=PropertyChanged}"
+                                             Margin="0,0,4,0" />
+                                    <TextBox Grid.Column="1"
+                                             ToolTip="Країна виробника"
+                                             Text="{Binding NewManufacturerCountryInput, UpdateSourceTrigger=PropertyChanged}"
+                                             Margin="0,0,4,0" />
+                                    <Button Grid.Column="2"
+                                            Content="[ + ВИРОБНИК ]"
+                                            Command="{Binding CreateManufacturerCommand}"
+                                            Style="{StaticResource GreenTerminalButtonStyle}"
+                                            Padding="8,4" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                             ToolTip="Назва нової категорії"
+                                             Text="{Binding NewProductTypeNameInput, UpdateSourceTrigger=PropertyChanged}"
+                                             Margin="0,0,4,0" />
+                                    <Button Grid.Column="1"
+                                            Content="[ + КАТЕГОРІЯ ]"
+                                            Command="{Binding CreateProductTypeCommand}"
+                                            Style="{StaticResource GreenTerminalButtonStyle}"
+                                            Padding="8,4" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <UniformGrid Columns="4" Margin="0,2,0,8">
+                            <StackPanel Margin="0,0,3,0">
+                                <TextBlock Text="СТАРТ ($):" Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding ProposalStartPriceInput, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                            </StackPanel>
+                            <StackPanel Margin="2,0,2,0">
+                                <TextBlock Text="КРОК ($):" Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding ProposalMinBidInput, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                            </StackPanel>
+                            <StackPanel Margin="2,0,2,0">
+                                <TextBlock Text="ВИКУП ($):" Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding ProposalBuyoutPriceInput, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                            </StackPanel>
+                            <StackPanel Margin="3,0,0,0">
+                                <TextBlock Text="ДНІВ:" Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding ProposalDurationDaysInput, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                            </StackPanel>
+                        </UniformGrid>
+
+                        <Button Content="[ НАДІСЛАТИ ЛОТ НА ВЕРИФІКАЦІЮ МЕНЕДЖЕРУ ]"
+                                Command="{Binding ProposeAuctionCommand}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="2"
+                Background="#050505"
+                BorderBrush="{StaticResource PhosphorGreenBrush}"
+                BorderThickness="1"
+                Padding="10,6"
+                Margin="0,8,0,0">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right"
+                           Text="{Binding FirstErrorMessage}"
+                           Foreground="{StaticResource AlertRedBrush}"
+                           FontWeight="Bold"
+                           Margin="12,0,0,0" />
+                <TextBlock Text="{Binding StatusMessage}"
+                           Style="{StaticResource TerminalStatusTextStyle}" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

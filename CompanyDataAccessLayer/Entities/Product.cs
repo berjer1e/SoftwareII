@@ -1,4 +1,9 @@
-﻿using System;
+/*
+ * Файл: Product.cs
+ * Призначення: Сутність бази даних Entity Framework Core для таблиці Products (товари аукціонів).
+ */
+
+using System;
 using System.Collections.Generic;
 
 namespace CompanyDataAccessLayer.Entities;
@@ -13,7 +18,7 @@ public partial class Product
 
     public int Quantity { get; set; }
 
-    public decimal? BasePrice { get; set; } 
+    public decimal? BasePrice { get; set; }
 
     public Guid ManufacturerId { get; set; }
 

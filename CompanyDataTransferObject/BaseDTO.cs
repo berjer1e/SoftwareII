@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+/*
+ * Файл: BaseDTO.cs
+ * Призначення: Абстрактний базовий клас для всіх об'єктів передачі даних (DTO) системи,
+ * що визначає універсальний унікальний ідентифікатор запису.
+ */
+
+using System;
 
 namespace CompanyDataTransferObject
 {

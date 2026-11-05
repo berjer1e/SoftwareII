@@ -1,4 +1,9 @@
-﻿using System;
+/*
+ * Файл: User.cs
+ * Призначення: Сутність бази даних Entity Framework Core для таблиці User (користувачі системи).
+ */
+
+using System;
 using System.Collections.Generic;
 
 namespace CompanyDataAccessLayer.Entities;
@@ -17,7 +22,17 @@ public partial class User
 
     public string? ContactEmail { get; set; }
 
-    public virtual ICollection<Auction> Auctions { get; set; } = new List<Auction>();
+    public string? PasswordHash { get; set; }
 
-    public virtual Role? UserRoleNavigation { get; set; }
+    public DateTime RowInsertTime { get; set; }
+
+    public DateTime RowUpdateTime { get; set; }
+
+    public decimal Balance { get; set; }
+
+    public virtual ICollection<Auction> AuctionAuctionManagers { get; set; } = new List<Auction>();
+
+    public virtual ICollection<Auction> AuctionProductOwners { get; set; } = new List<Auction>();
+
+    public virtual ICollection<Bid> Bids { get; set; } = new List<Bid>();
 }

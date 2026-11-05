@@ -1,24 +1,40 @@
-﻿using CompanyDataTransferObject;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer;
+/*
+ * Файл: IBaseDAL.cs
+ * Призначення: Узагальнений інтерфейс рівня доступу до даних (DAL), який визначає базовий набір
+ * CRUD-операцій (отримання списку, пошук за ID, додавання, оновлення та видалення) для будь-якого DTO.
+ */
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DTO=CompanyDataTransferObject;
+using DTO = CompanyDataTransferObject;
 
 namespace CompanyDataAccessLayer
 {
     public interface IBaseDAL<T> where T : DTO.BaseDTO
     {
+        /*
+         * Повертає повний перелік усіх записів відповідної сутності з бази даних.
+         */
         List<T> GetAll();
-        T? GetById(Guid id);    //T? - nullable, бо може не знайти по id 
-        bool Add(T item);       // після успіху item.Id = згенерований ID
+
+        /*
+         * Шукає та повертає один запис за його унікальним ідентифікатором або null, якщо запис відсутній.
+         */
+        T? GetById(Guid id);
+
+        /*
+         * Додає новий запис до бази даних, генеруючи новий ідентифікатор за потреби, та повертає результат операції.
+         */
+        bool Add(T item);
+
+        /*
+         * Оновлює існуючий запис у базі даних та повертає прапорець успішності.
+         */
         bool Update(T item);
+
+        /*
+         * Видаляє запис із бази даних за вказаним унікальним ідентифікатором.
+         */
         bool Delete(Guid id);
     }
-
-  
 }
-   

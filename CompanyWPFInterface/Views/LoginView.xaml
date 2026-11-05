@@ -1,0 +1,80 @@
+<UserControl x:Class="CompanyWPFInterface.Views.LoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource CrtBlackBrush}">
+    <Grid>
+        <Border Width="540"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Background="{StaticResource CrtPanelBrush}"
+                BorderBrush="{StaticResource AmberBrush}"
+                BorderThickness="1"
+                Padding="24">
+            <StackPanel>
+                <Border Background="{StaticResource CrtHeaderBrush}"
+                        BorderBrush="{StaticResource CrtBorderBrush}"
+                        BorderThickness="1"
+                        Padding="12,8"
+                        Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="AUCTION EXCHANGE TERMINAL "
+                                   Foreground="{StaticResource AmberBrush}"
+                                   FontWeight="Bold"
+                                   FontSize="13" />
+                        <TextBlock Text="МОДУЛЬ АВТЕНТИФІКАЦІЇ "
+                                   Foreground="{StaticResource PhosphorGreenBrush}"
+                                   FontSize="11"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="ІДЕНТИФІКАТОР ОПЕРАТОРА (EMAIL АБО ІМ'Я):"
+                           Style="{StaticResource FieldLabelStyle}" />
+                <TextBox Text="{Binding LoginOrEmail, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                         Margin="0,0,0,12" />
+
+                <TextBlock Text="КЛЮЧ ДОСТУПУ (ПАРОЛЬ):"
+                           Style="{StaticResource FieldLabelStyle}" />
+                <PasswordBox x:Name="TerminalPasswordBox"
+                             PasswordChanged="OnPasswordChanged"
+                             Margin="0,0,0,16" />
+
+                <Button Content="[ УВІЙТИ В ТЕРМІНАЛ / EXECUTE LOGIN ]"
+                        Command="{Binding LoginCommand}"
+                        Style="{StaticResource GreenTerminalButtonStyle}"
+                        Height="34"
+                        Margin="0,0,0,14" />
+
+                <Border BorderBrush="{StaticResource CrtBorderBrush}"
+                        BorderThickness="1"
+                        Background="#0A0A0A"
+                        Padding="10"
+                        Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="ШВИДКЕ ЗАПОВНЕННЯ ТЕСТОВИХ ОБЛІКОВИХ ЗАПИСІВ (ПАРОЛЬ: Password123!):"
+                                   Foreground="{StaticResource MutedTextBrush}"
+                                   FontSize="11"
+                                   Margin="0,0,0,8" />
+                        <UniformGrid Columns="2">
+                            <Button Content="[ РОЛЬ: МЕНЕДЖЕР (sarah@co.uk) ]"
+                                    Command="{Binding FillManagerProfileCommand}"
+                                    Margin="0,0,4,0" />
+                            <Button Content="[ РОЛЬ: ПОКУПЕЦЬ (mia@m.co) ]"
+                                    Command="{Binding FillTraderProfileCommand}"
+                                    Margin="4,0,0,0" />
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
+
+                <Border BorderBrush="{StaticResource CrtBorderBrush}"
+                        BorderThickness="1"
+                        Background="#050505"
+                        Padding="10,8">
+                    <TextBlock Text="{Binding StatusMessage}"
+                               TextWrapping="Wrap"
+                               Style="{StaticResource LoginStatusTextStyle}" />
+                </Border>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

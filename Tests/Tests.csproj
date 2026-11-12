@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CompanyDataAccessLayer\CompanyDataAccessLayer.csproj" />
     <ProjectReference Include="..\CompanyDataTransferObject\CompanyDataTransferObject.csproj" />
+    <ProjectReference Include="..\CompanyServiceLayer\CompanyServiceLayer.csproj" />
   </ItemGroup>
 
 </Project>

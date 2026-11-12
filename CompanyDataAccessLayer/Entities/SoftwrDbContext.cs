@@ -27,7 +27,7 @@ public partial class SoftwrDbContext : DbContext
     {
         modelBuilder.Entity<Auction>(entity =>
         {
-            entity.ToTable("Auction");
+            entity.ToTable("Auction", tb => tb.UseSqlOutputClause(false));
 
             entity.Property(e => e.AuctionId)
                 .HasDefaultValueSql("(newid())")
@@ -103,12 +103,13 @@ public partial class SoftwrDbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.ToTable("User");
+            entity.ToTable("User", tb => tb.UseSqlOutputClause(false));
 
             entity.Property(e => e.UserId)
                 .HasDefaultValueSql("(newid())")
                 .HasColumnName("UserID");
             entity.Property(e => e.ContactEmail).HasMaxLength(100);
+            entity.Property(e => e.PasswordHash).HasMaxLength(256);
             entity.Property(e => e.UserName).HasMaxLength(50);
 
             entity.HasOne(d => d.UserRoleNavigation).WithMany(p => p.Users)

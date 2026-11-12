@@ -17,6 +17,10 @@ public partial class User
 
     public string? ContactEmail { get; set; }
 
+    public string? PasswordHash { get; set; }
+
+    public decimal Balance { get; set; }
+
     public virtual ICollection<Auction> Auctions { get; set; } = new List<Auction>();
 
     public virtual Role? UserRoleNavigation { get; set; }

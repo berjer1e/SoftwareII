@@ -16,7 +16,9 @@ namespace CompanyDataAccessLayer.DAL
             Email = e.ContactEmail ?? string.Empty,
             RegDate = e.RegDate,
             IsActive = e.IsActive,
-            RoleId = e.UserRole ?? Guid.Empty
+            RoleId = e.UserRole ?? Guid.Empty,
+            PasswordHash = e.PasswordHash,
+            Balance = e.Balance
         };
 
         protected override Ent.User ToEntity(UserDTO d) => new()
@@ -26,6 +28,8 @@ namespace CompanyDataAccessLayer.DAL
             ContactEmail = d.Email,
             RegDate = d.RegDate,
             IsActive = d.IsActive,
+            PasswordHash = d.PasswordHash,
+            Balance = d.Balance,
             UserRole = d.RoleId == Guid.Empty ? null : d.RoleId
         };
     }

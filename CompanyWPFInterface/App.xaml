@@ -1,0 +1,58 @@
+<Application x:Class="CompanyWPFInterface.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CompanyWPFInterface">
+    <Application.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+        <!-- Шаблон відображення помилок валідації (ControlTemplate) -->
+        <ControlTemplate x:Key="ValidationErrorTemplate">
+            <StackPanel>
+                <Border BorderBrush="Red" BorderThickness="1">
+                    <AdornedElementPlaceholder />
+                </Border>
+                <TextBlock Text="{Binding [0].ErrorContent}"
+                           Foreground="Red"
+                           FontSize="11"
+                           Margin="0,2,0,0" />
+            </StackPanel>
+        </ControlTemplate>
+
+        <!-- Стиль для текстових полів із валідацією -->
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ValidationErrorTemplate}" />
+        </Style>
+
+        <!-- Стиль для полів пароля з валідацією -->
+        <Style TargetType="PasswordBox">
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ValidationErrorTemplate}" />
+        </Style>
+
+        <!-- Базовий стиль кнопок -->
+        <Style TargetType="Button">
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Padding" Value="12,0" />
+        </Style>
+
+        <!-- Стиль секційних рамок -->
+        <Style x:Key="SectionBorderStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="Gray" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="12" />
+        </Style>
+
+        <!-- Шаблон даних користувача з балансом для списків -->
+        <DataTemplate x:Key="UserWithBalanceTemplate">
+            <TextBlock>
+                <Run Text="{Binding Name}" />
+                <Run Text=" (" />
+                <Run Text="{Binding Balance, StringFormat=N2}" />
+                <Run Text=" грн)" />
+            </TextBlock>
+        </DataTemplate>
+    </Application.Resources>
+</Application>

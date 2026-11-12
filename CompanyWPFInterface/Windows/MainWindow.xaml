@@ -1,0 +1,134 @@
+﻿<Window x:Class="CompanyWPFInterface.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Аукціонний дім — Панель менеджера" Height="640" Width="960"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Шапка: інформація про користувача, сесію та команди керування -->
+        <Border Grid.Row="0" Margin="0,0,0,10" Style="{StaticResource SectionBorderStyle}">
+            <DockPanel LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding HeaderUserText}" FontSize="16" FontWeight="Bold" />
+                    <TextBlock Text="{Binding HeaderSessionText}" Margin="0,4,0,0" />
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Оновити дані" Command="{Binding RefreshCommand}" Margin="0,0,8,0" />
+                    <Button Content="Вийти" Command="{Binding LogoutCommand}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Повідомлення про обмежений доступ для ролей без прав менеджера -->
+        <Border Grid.Row="1" Margin="0,0,0,10" BorderBrush="Gray" BorderThickness="1" Padding="8">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsManager}" Value="False">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding AccessBannerText}" Foreground="DarkRed" FontWeight="SemiBold" />
+        </Border>
+
+        <!-- Таблиця аукціонів -->
+        <Border Grid.Row="2" Margin="0,0,0,10" Style="{StaticResource SectionBorderStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Активні та завершені аукціони" FontSize="14" FontWeight="Bold" Margin="0,0,0,8" />
+
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding Auctions}"
+                          SelectedItem="{Binding SelectedAuction}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          CanUserAddRows="False"
+                          GridLinesVisibility="All"
+                          HeadersVisibility="Column"
+                          RowHeight="28">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID лоту" Binding="{Binding Id}" Width="240" />
+                        <DataGridTextColumn Header="Старт. ціна" Binding="{Binding StartPrice, StringFormat=N2}" Width="110" />
+                        <DataGridTextColumn Header="Поточна/Фін. ціна" Binding="{Binding EndPrice, StringFormat=N2}" Width="130" />
+                        <DataGridCheckBoxColumn Header="Активний" Binding="{Binding IsActive}" Width="80" />
+                        <DataGridTextColumn Header="Початок" Binding="{Binding StartDate, StringFormat=dd.MM.yyyy}" Width="110" />
+                        <DataGridTextColumn Header="Завершення" Binding="{Binding EndDate, StringFormat=dd.MM.yyyy}" Width="110" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Панель викупу вибраного лота (доступна лише менеджеру/адміну) -->
+                <StackPanel Grid.Row="2"
+                            Orientation="Horizontal"
+                            Margin="0,10,0,0"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding IsManager, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="Покупець для викупу:" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <ComboBox Width="260"
+                              Height="28"
+                              Margin="0,0,10,0"
+                              ItemsSource="{Binding Buyers}"
+                              SelectedItem="{Binding SelectedBuyer}"
+                              DisplayMemberPath="Name" />
+                    <Button Content="Викупити лот (10% комісія)" Command="{Binding BuyoutCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Панель керування балансами користувачів (доступна лише менеджеру/адміну) -->
+        <Border Grid.Row="3"
+                Style="{StaticResource SectionBorderStyle}"
+                Visibility="{Binding IsManager, Converter={StaticResource BoolToVis}}">
+            <StackPanel>
+                <TextBlock Text="Керування балансами користувачів" FontSize="14" FontWeight="Bold" Margin="0,0,0,8" />
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Користувач:" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <ComboBox Width="260"
+                              Height="28"
+                              Margin="0,0,10,0"
+                              ItemsSource="{Binding UsersForBalance}"
+                              SelectedItem="{Binding SelectedBalanceUser}"
+                              ItemTemplate="{StaticResource UserWithBalanceTemplate}" />
+
+                    <TextBlock Text="Новий баланс (грн):" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBox Width="120"
+                             Margin="0,0,10,0"
+                             Text="{Binding NewBalanceText, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+
+                    <Button Content="Змінити баланс" Command="{Binding UpdateBalanceCommand}" />
+
+                    <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" Margin="12,0,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="Green" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsStatusError}" Value="True">
+                                        <Setter Property="Foreground" Value="Red" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

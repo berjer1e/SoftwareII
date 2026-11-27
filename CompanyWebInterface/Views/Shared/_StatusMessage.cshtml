@@ -1,0 +1,16 @@
+@{
+    var statusMessage = TempData["StatusMessage"] as string;
+    var errorMessage = TempData["ErrorMessage"] as string;
+}
+@if (!string.IsNullOrEmpty(statusMessage))
+{
+    <div class="border border-secondary p-2 mb-3">
+        <strong>Повідомлення:</strong> @statusMessage
+    </div>
+}
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="border border-danger text-danger p-2 mb-3">
+        <strong>Помилка:</strong> @errorMessage
+    </div>
+}

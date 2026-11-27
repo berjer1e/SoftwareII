@@ -1,0 +1,36 @@
+@model List<UserBalanceViewModel>
+@{
+    ViewData["Title"] = "Керування балансами користувачів";
+}
+
+<h3 class="mb-3">@ViewData["Title"]</h3>
+
+<div class="border p-3">
+    <table class="table table-bordered align-middle mb-0">
+        <thead>
+            <tr>
+                <th>Логін / Ім'я</th>
+                <th>Email</th>
+                <th>Роль</th>
+                <th>Статус</th>
+                <th>Баланс</th>
+                <th>Дія</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.Name</td>
+                    <td>@user.Email</td>
+                    <td>@user.RoleDisplayName</td>
+                    <td>@(user.IsActive ? "Активний" : "Неактивний")</td>
+                    <td>@user.Balance.ToString("N2") грн</td>
+                    <td>
+                        <a asp-action="EditBalance" asp-route-id="@user.Id" class="btn btn-outline-dark btn-sm">Змінити баланс</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

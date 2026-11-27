@@ -1,0 +1,30 @@
+@model UpdateBalanceViewModel
+@{
+    ViewData["Title"] = "Редагування балансу";
+}
+
+<h3 class="mb-3">Зміна балансу: @Model.UserName</h3>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="border p-3">
+            <form asp-action="EditBalance" asp-route-id="@Model.UserId" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="UserId" />
+
+                <div class="mb-3">
+                    <label asp-for="NewBalance" class="form-label"></label>
+                    <input asp-for="NewBalance" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="NewBalance" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-outline-dark">Зберегти</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Скасувати</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

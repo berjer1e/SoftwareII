@@ -1,0 +1,12 @@
+@{
+    ViewData["Title"] = "Доступ заборонено";
+}
+
+<div class="border border-danger p-4 mt-3">
+    <h4 class="text-danger">403 — Доступ заборонено</h4>
+    <p class="mb-3">
+        Ви увійшли як <strong>@User.Identity?.Name</strong>, але ця сторінка або дія доступна лише користувачам із роллю
+        <strong>Менеджер аукціону</strong> або <strong>Адміністратор</strong>.
+    </p>
+    <a asp-controller="Auctions" asp-action="Index" class="btn btn-outline-secondary">Повернутися до аукціонів</a>
+</div>

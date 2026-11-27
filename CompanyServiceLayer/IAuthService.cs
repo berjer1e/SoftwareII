@@ -1,42 +1,13 @@
-/*
- * Файл: IAuthService.cs
- * Призначення: Контракт сервісу автентифікації користувачів, реєстрації та перевірки прав доступу.
- */
+using System;
+using CompanyDataTransferObject;
 
 namespace CompanyServiceLayer;
 
 public interface IAuthService
 {
-    /*
-     * Метод: Login
-     * Призначення: Валідує вхідні дані, перевіряє користувача та хеш пароля, та ініціалізує сесію.
-     * Параметри:
-     *   username - логін користувача
-     *   password - відкритий пароль
-     * Повертає: true, якщо вхід успішний; інакше false.
-     */
+    UserDTO? ValidateCredentials(string username, string password);
     bool Login(string username, string password);
-
-    /*
-     * Метод: Register
-     * Призначення: Створює та зберігає нового користувача в базі даних.
-     * Параметри:
-     *   username - новий логін
-     *   password - пароль користувача
-     *   email - контактна адреса (необов'язково)
-     * Повертає: true, якщо користувача успішно створено; false, якщо такий логін уже зайнятий.
-     */
-    bool Register(string username, string password, string email = "");
-
-    /*
-     * Метод: Logout
-     * Призначення: Завершує активну сесію поточного користувача.
-     */
+    bool Register(string username, string password, string email = "", Guid? roleId = null);
     void Logout();
-
-    /*
-     * Властивість: CanManageAuctions
-     * Призначення: Визначає, чи має поточний авторизований користувач права на керування аукціонами.
-     */
     bool CanManageAuctions { get; }
 }

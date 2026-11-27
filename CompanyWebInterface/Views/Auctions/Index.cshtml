@@ -1,0 +1,85 @@
+@model AuctionIndexViewModel
+@{
+    ViewData["Title"] = "Список аукціонів";
+    bool isManager = User.IsInRole(WebRoles.AuctionManager) || User.IsInRole(WebRoles.Admin);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Аукціони</h3>
+    @if (isManager)
+    {
+        <a asp-action="Create" class="btn btn-outline-dark">Створити лот</a>
+    }
+</div>
+
+<div class="border p-3 mb-3">
+    <form method="get" asp-action="Index" class="row g-2 align-items-center">
+        <div class="col-sm-6">
+            <input asp-for="Search" class="form-control" placeholder="Пошук за товаром, менеджером або ID..." />
+        </div>
+        <div class="col-auto">
+            <div class="form-check">
+                <input asp-for="OnlyActive" class="form-check-input" />
+                <label asp-for="OnlyActive" class="form-check-label">Тільки активні</label>
+            </div>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-dark">Знайти</button>
+            @if (!string.IsNullOrWhiteSpace(Model.Search) || Model.OnlyActive)
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary">Скинути</a>
+            }
+        </div>
+    </form>
+</div>
+
+<div class="border p-3">
+    @if (Model.Auctions.Count == 0)
+    {
+        <p class="mb-0 text-muted">Аукціонів не знайдено.</p>
+    }
+    else
+    {
+        <table class="table table-bordered align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Менеджер / Продавець</th>
+                    <th>Стартова ціна</th>
+                    <th>Поточна / Фін. ціна</th>
+                    <th>Статус</th>
+                    <th>Період</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Auctions)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@item.ManagerName</td>
+                        <td>@item.StartPrice.ToString("N2") грн</td>
+                        <td>@item.CurrentPrice.ToString("N2") грн</td>
+                        <td>@(item.IsActive ? "Активний" : "Завершений")</td>
+                        <td>@item.StartDate.ToString("dd.MM.yyyy") — @item.EndDate.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">Деталі</a>
+                                @if (isManager && item.IsActive)
+                                {
+                                    <form asp-action="Buyout" method="post" class="d-flex gap-1">
+                                        <input type="hidden" name="AuctionId" value="@item.Id" />
+                                        <select name="BuyerId" asp-items="Model.Buyers" class="form-select form-select-sm" style="width: 150px;">
+                                            <option value="">— покупець —</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-outline-dark btn-sm">Викуп (10%)</button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

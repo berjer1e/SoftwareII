@@ -1,0 +1,74 @@
+@model AuctionDisplayViewModel
+@{
+    ViewData["Title"] = "Деталі лоту";
+    bool isManager = User.IsInRole(WebRoles.AuctionManager) || User.IsInRole(WebRoles.Admin);
+}
+
+<h3 class="mb-3">Деталі аукціонного лоту</h3>
+
+<div class="border p-3 mb-3">
+    <dl class="row mb-0">
+        <dt class="col-sm-3">ID лоту</dt>
+        <dd class="col-sm-9">@Model.Id</dd>
+
+        <dt class="col-sm-3">Товар</dt>
+        <dd class="col-sm-9">@Model.ProductName</dd>
+
+        <dt class="col-sm-3">Менеджер / Продавець</dt>
+        <dd class="col-sm-9">@Model.ManagerName</dd>
+
+        <dt class="col-sm-3">Стартова ціна</dt>
+        <dd class="col-sm-9">@Model.StartPrice.ToString("N2") грн</dd>
+
+        <dt class="col-sm-3">Поточна / Фінальна ціна</dt>
+        <dd class="col-sm-9">@Model.CurrentPrice.ToString("N2") грн</dd>
+
+        <dt class="col-sm-3">Статус</dt>
+        <dd class="col-sm-9">@(Model.IsActive ? "Активний" : "Завершений")</dd>
+
+        <dt class="col-sm-3">Початок — Завершення</dt>
+        <dd class="col-sm-9 mb-0">@Model.StartDate.ToString("dd.MM.yyyy HH:mm") — @Model.EndDate.ToString("dd.MM.yyyy HH:mm")</dd>
+    </dl>
+</div>
+
+@if (Model.IsActive && isManager)
+{
+    <div class="border p-3 mb-3">
+        <h5>Дії менеджера аукціону</h5>
+        <form asp-action="Buyout" method="post" class="row g-2 align-items-center mb-2">
+            <input type="hidden" name="AuctionId" value="@Model.Id" />
+            <div class="col-auto">
+                <label class="col-form-label">Покупець для викупу:</label>
+            </div>
+            <div class="col-sm-4">
+                <select name="BuyerId" asp-items="ViewBag.Buyers" class="form-select">
+                    <option value="">— оберіть покупця —</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-dark">Викупити лот (10% комісія)</button>
+            </div>
+        </form>
+
+        <form asp-action="Close" asp-route-id="@Model.Id" method="post">
+            <button type="submit" class="btn btn-outline-secondary btn-sm">Завершити аукціон достроково</button>
+        </form>
+    </div>
+}
+
+@if (Model.IsActive && User.Identity?.IsAuthenticated == true && !isManager)
+{
+    <div class="border p-3 mb-3">
+        <h5>Зробити ставку</h5>
+        <form asp-action="PlaceBid" asp-route-id="@Model.Id" method="post" class="row g-2 align-items-center">
+            <div class="col-sm-4">
+                <input type="number" step="0.01" name="bidAmount" class="form-control" placeholder="Сума більша за @Model.CurrentPrice.ToString("F2")" required />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-dark">Подати ставку</button>
+            </div>
+        </form>
+    </div>
+}
+
+<a asp-action="Index" class="btn btn-outline-secondary">Назад до списку</a>
